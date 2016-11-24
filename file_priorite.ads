@@ -49,7 +49,7 @@ package File_Priorite is
 	-- sinon
 	--   leve l'exception File_Vide
 	procedure Prochain(F: in File_Prio; D: out Donnee; P: out Priorite);
-		
+
 private
 	-- Le type File_Interne doit etre defini dans le corps du package
 	-- (file_priorite.adb)

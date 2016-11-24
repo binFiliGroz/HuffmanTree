@@ -1,10 +1,20 @@
 with Ada.Text_Io; use Ada.Text_Io;
+with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
+with File_Priorite;
 
 procedure test_file_priorite is
 
-    procedure Verifie_Valeur(F: in File_Prio; D: in Donnee; P: in Priorite) is
-        D1 : Donnee;
-        P1 : Priorite;
+    function Est_Prioritaire (P1, P2: Positive) return boolean is
+    begin
+        return P1>P2;
+    end Est_Prioritaire;
+
+    package File_Priorite_Integer is new File_Priorite(Integer, Positive, Est_Prioritaire);
+    use File_Priorite_Integer;
+
+    procedure Verifie_Valeur(F: in File_Prio; D: in Integer; P: in Positive) is
+        D1 : Integer;
+        P1 : Positive;
     begin
         Prochain(F, D1, P1);
         if (D1 = D and P1 = P) then
@@ -15,13 +25,12 @@ procedure test_file_priorite is
                 Put_Line("ERREUR : Supprime() a renvoyée une valeur erronée");
             end if;
         else
-            Put_Line("ERREUR : Prochain() a renvoyée une valeur erronée");
+            Put("ERREUR : Prochain() a renvoyée une valeur erronée : D = "); Put(D1); Put(", P = ");
+	    Put(P1); New_Line;
         end if;
     end Verifie_Valeur;
 
     F: File_Prio;
-    P: Priorite;
-    D: Donnee;
 begin
     Put_Line("Creation d'une file de priorité");
     F := Cree_File(8);
@@ -44,7 +53,6 @@ begin
     else
         Put_Line("ERREUR : la file devrait être pleine");
     end if;
-    --Insere(F, 0, 0);
     Verifie_Valeur(F, 697, 697);
     Verifie_Valeur(F, 415, 415);
     Verifie_Valeur(F, 351, 351);
@@ -53,16 +61,10 @@ begin
     Verifie_Valeur(F, 42, 42);
     Verifie_Valeur(F, 3, 3); 
     Verifie_Valeur(F, 1, 1);
-    --Supprime(F, D, P);
     if (Est_Vide(F)) then   
         Put_Line("La file est maintenant vide"); 
     else
         Put_Line("ERREUR : la file n'est pas vide");
     end if;
     Libere_File(F);
-    if (F = null) then
-        Put_Line("F = null");
-    else 
-        Put_Line("ERREUR : F != null");
-    end if;
 end test_file_priorite;
