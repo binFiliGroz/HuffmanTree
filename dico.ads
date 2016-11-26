@@ -43,7 +43,7 @@ package Dico is
 
 -- Acces aux informations sur un caractere
 
-	-- retourne True sur le caractere C est present dans le D
+	-- retourne True si le caractere C est present dans le D
 	function Est_Present(C : Character; D : Dico_Caracteres)
 		return Boolean;
 

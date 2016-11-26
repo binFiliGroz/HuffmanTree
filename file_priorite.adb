@@ -11,7 +11,7 @@ package body File_Priorite is
 
     type File_Interne is record
         Capacite: Positive;
-	Dernier_Elem: Integer;
+	    Dernier_Elem: Integer;
         Tab: Tableau_Tas_A;
     end record;
 
