@@ -1,13 +1,14 @@
+with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 with Ada.Unchecked_Deallocation;
 
-package body code is
+package body Code is
 
+    type Element;
+    type Liste_Bits is access Element;
     type Element is record
         B: Bit;
         Suiv: Liste_Bits;
     end record;
-
-    type Liste_Bits is access Element;
 
     type Code_Binaire_Interne is record
         Longueur: Natural;
@@ -16,21 +17,21 @@ package body code is
 
     procedure Libere_Elem is new Ada.Unchecked_Deallocation(Element, Liste_Bits);
 
-    procedure Libere_Code_Binaire_Interne is new Ada.Unchecked_Deallocation(Code_Binaire_Internet, Code_Binaire);
+    procedure Libere_Code_Binaire_Interne is new Ada.Unchecked_Deallocation(Code_Binaire_Interne, Code_Binaire);
 
-    function Cree_Code() return Code_Binaire is
+    function Cree_Code return Code_Binaire is
         C: Code_Binaire;
     begin
+	C := new Code_Binaire_Interne;
         C.Longueur := 0;
-        C.Bits := null;
         return C;
     end Cree_Code;
 
-    function Cree_Code(C: in Code_Binaire) return Code_Binaire
+    function Cree_Code(C: in Code_Binaire) return Code_Binaire is
         Copie: Code_Binaire;
         Cour, CPos: Liste_Bits;
     begin
-        Copie := Cree_Code();
+        Copie := Cree_Code;
 
         if (C.Longueur = 0) then
             return C;
@@ -38,7 +39,7 @@ package body code is
         Copie.Bits := new Element;
         Cour := Copie.Bits;
 
-        Cour.B := C.B;
+        Cour.B := C.Bits.B;
 
         Cpos := C.Bits;
         for I in Integer range 1..(C.Longueur - 1) loop
@@ -48,17 +49,17 @@ package body code is
             Cour.B := CPos.B;
         end loop;
         Copie.Longueur := C.Longueur;
+	return Copie;
     end Cree_Code;
 
-    procedure Libere_Code(C: in Code_Binaire) is 
+    procedure Libere_Code(C: in out Code_Binaire) is 
         Cour, Suiv: Liste_Bits;
     begin
         Cour := C.Bits;
-        Suiv := Cour.Suiv;
         for I in Integer range 0..(C.Longueur - 1) loop
+	    Suiv := Cour.Suiv;
             Libere_Elem(Cour);
             Cour := Suiv;
-            Suiv := Suiv.Suiv;
         end loop;
         Libere_Code_Binaire_Interne(C);
     end Libere_Code;
@@ -79,7 +80,7 @@ package body code is
     end Affiche;
 
     procedure Ajoute_Avant(B: in Bit; C: in out Code_Binaire) is
-        Liste: Liste_Bits
+        Liste: Liste_Bits;
     begin
         Liste := C.Bits;
         C.Bits := new Element;
@@ -111,20 +112,35 @@ package body code is
     end Ajoute_Apres;
     
     procedure Ajoute_Apres(C1: in Code_Binaire; C: in out Code_Binaire) is
-        Cour: Liste_Bits;
+        Cour, C1Cour: Liste_Bits;
+	C1Pos: Natural;
     begin
-        Cour := C.Bits;
-        if (C.Longueur > 0) then
-            if (C.Longueur > 1) then
-                for I in Integer range 0..(C.Longueur - 2) loop
-                    Cour := Cour.Suiv;
-                end loop;
-            end if;
-            Cour.Suiv := C1.Bits;
-        else
-            C.Bits := C1.Bits;
-        end if;
-        C.Longueur := C.Longueur + C1.Longueur;
+	if (Longueur(C1) > 0) then
+	    Cour := C.Bits;
+	    if (Longueur(C) > 0) then
+		if (Longueur(C) > 1) then
+		    for I in Integer range 0..(Longueur(C) - 2) loop
+			Cour := Cour.Suiv;
+		    end loop;
+		end if;
+	        C1Cour := C1.Bits;
+		C1Pos := 0;
+		C1Cour := C1.Bits;
+	    else
+		C.Bits := new Element;
+		Cour := C.Bits;
+		Cour.B := C1.Bits.B;
+		C1Pos := 1;
+		C1Cour := C1.Bits.Suiv;
+	    end if;
+	    for I in Natural range C1Pos..(Longueur(C1) - 1) loop
+		Cour.Suiv := new Element;
+		Cour := Cour.Suiv;
+		Cour.B := C1Cour.B;
+		C1Cour := C1Cour.Suiv;
+	    end loop;
+	    C.Longueur := Longueur(C) + Longueur(C1);
+	end if;
     end Ajoute_Apres;
 
     type Iterateur_Code_Interne is record
@@ -142,7 +158,7 @@ package body code is
         It.C := C;
         It.Pos := 0;
         It.Bits := C.Bits;
-        return C.Bits;
+        return It;
     end Cree_Iterateur;
 
     procedure Libere_Iterateur(It : in out Iterateur_Code) is
@@ -152,13 +168,18 @@ package body code is
 
     function Has_Next(It: Iterateur_Code) return Boolean is
     begin
-        return It.Pos < C.Longueur - 1;
+        return It.Pos < It.C.Longueur;
     end Has_Next;
 
     function Next(It: Iterateur_Code) return Bit is
+	B: Bit;
     begin
+	if (not Has_Next(It)) then
+	    raise Code_Entierement_Parcouru;
+	end if;
+	B := It.Bits.B;
+	It.Bits := It.Bits.Suiv;
+	It.Pos := It.Pos + 1;
+	return B;
     end Next;
-
-
-
-end code;
+end Code;

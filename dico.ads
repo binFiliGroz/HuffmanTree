@@ -1,4 +1,4 @@
-with code; use code;
+with Code; use Code;
 with Ada.Streams.Stream_IO; 
 
 -- Dictionnaire dont les cles sont des caracteres, et les valeurs
@@ -9,7 +9,7 @@ package Dico is
 	-- Informations associees a un caractere
 	type Info_Caractere is record
 		Code : Code_Binaire;
-		-- A modifier/completer selon les besoins!
+		Nb_Occ : Natural;
 	end record;
 
 	-- La structure du dictionnaire lui-meme, privee
@@ -41,6 +41,9 @@ package Dico is
 	                    Infos : in Info_Caractere;
 	                    D : in out Dico_Caracteres);
 
+	procedure Incremente_Nb_Occurences(C : in Character;
+					 D : in out Dico_Caracteres);
+
 -- Acces aux informations sur un caractere
 
 	-- retourne True si le caractere C est present dans le D
@@ -57,6 +60,9 @@ package Dico is
 	function Get_Infos(C : Character; D : Dico_Caracteres)
 	         return Info_Caractere;
 
+	function Get_Nb_Occurences(C : in Character;
+				   D : in out Dico_Caracteres)
+		 return Natural;
 
 -- Statistiques sur le dictionnaire (au besoin)
 
@@ -76,4 +82,3 @@ private
 	type Dico_Caracteres is access Dico_Caracteres_Interne;
 
 end Dico;
-

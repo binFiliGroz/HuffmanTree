@@ -3,7 +3,7 @@
 -- D'autres operations peuvent etre ajoutees si necessaire, et 
 -- toutes ne vous seront pas forcement utiles...
 
-package code is
+package Code is
 
 	Code_Vide, Code_Trop_Court : exception;
 
@@ -84,4 +84,4 @@ private
 
 	type Iterateur_Code is access Iterateur_Code_Interne;
 
-end code;
+end Code;
