@@ -47,7 +47,7 @@ package Huffman is
 	-- dans l'arbre et leur code binaire (evite les parcours multiples)
 	-- de l'arbre
 	function Genere_Dictionnaire(H : in Arbre_Huffman) return Dico_Caracteres;
-
+	procedure Genere_Dictionnaire(A : in Arbre_Huffman; D : in out Dico_Caracteres; F: File);
 
 
 ------ Parcours de l'arbre (decodage)

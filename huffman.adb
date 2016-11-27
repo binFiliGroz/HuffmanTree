@@ -12,7 +12,7 @@ package File_Priorite_Arbre is new File_Priorite(Arbre, Integer, Est_Prioritaire
 use File_Priorite_Arbre;
 
 type Noeud is record 
-	Char: String;
+	Char: Character;
 	Fd, Fg : Arbre;
 	end record;
 
@@ -134,9 +134,11 @@ type Tableau_Char is array of Integer;
 	
 	function Ecrit_Huffman(H : in Arbre_Huffman ; Flux : Ada.Streams_IO.Stream_Access) is
 		Fichier : Ada.Streams.Stream_IO.File_Type;
-		Dictionnaire : Dico := Cree_Dico;
+		Dictionnaire : Dico;
 		Code_Bin : Code_Binaire := Cree_Code;
 		A : Arbre := H.A;
+		Positive : Positive := 0;
+		Infos : Info_Caractere;
 		begin
 			Create(Fichier, Out_File, Nom_Fichier);
 			Flux := Stream(Fichier);
@@ -146,6 +148,7 @@ type Tableau_Char is array of Integer;
 
 			-- On ecrit ce dictionnaire dans le fichier ouvert
 			
+
 			
 			return Positive;
 	end function;
@@ -154,23 +157,45 @@ type Tableau_Char is array of Integer;
 
 	function Lit_Huffman(Flux : Ada.Streams.Stream_IO.Stream_Access)
 		begin
-			...
-			...
-			...
+			
 			return Arbre_Huffman;
 	end function;
 
 
+	function Est_Feuille(A : Arbre) is
+	begin 
+		if (A.Fg=null & A.Fd=null) then
+			return True;
+		else
+			return False;
+		end if;
+	end function;
 
-	function Genere_Dictionnaire(H : in Arbre_Huffman) return Dico_Caracteres;
-		begin
-			--Parcours Itératif??
+	function Genere_Dictionnaire(H : in Arbre_Huffman)
+	Dico : Dico_Caracteres := Cree_Dico; 
+	begin
+		Genere_Dictionnaire(H.A, Dico, File);
+		return Dico;
 	end function;
 
 
-	procedure Get_Caractere(It_Code : in Iterateur_Code; A : in out Arbre;
-	        Caractere_Trouve : out Boolean;
-			Caractere : out Character);
+	procedure Genere_Dictionnaire(A: Arbre; D: Dico_Caracteres; F: File) is
+    		Code: Code_Binaire;
+    		Caractere: Character;
+		begin
+    		if (Est_Feuille(A) then
+        		Caractere := A.Char; -- a recuperer dans l'arbre
+        		Code := File_vers_Code(F);
+        		--stockage du caractere dans le dictionnaire
+        		Set_Code(Caractere, Code, D);
+    		else
+        		GenereDictionnaire(A.Fg, D, File_Plus_Zero(F));
+        		GenereDictionnaire(A.Fd, D, File_Plus_Un(F));
+    		end if;
+	end Genere_Dictionnaire;
+
+
+	procedure Get_Caractere(It_Code : in Iterateur_Code; A : in out Arbre; Caractere_Trouve : out Boolean; Caractere : out Character);
 			begin
 
 	end procedure;
