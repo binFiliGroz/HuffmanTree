@@ -135,6 +135,7 @@ type Tableau_Char is array of Integer;
 	function Ecrit_Huffman(H : in Arbre_Huffman ; Flux : Ada.Streams_IO.Stream_Access) is
 		Fichier : Ada.Streams.Stream_IO.File_Type;
 		Dictionnaire : Dico;
+        i : Integer;
 		Code_Bin : Code_Binaire := Cree_Code;
 		A : Arbre := H.A;
 		Positive : Positive := 0;
@@ -147,8 +148,13 @@ type Tableau_Char is array of Integer;
 			Dictionnaire := Genere_Dictionnaire(H);
 
 			-- On ecrit ce dictionnaire dans le fichier ouvert
-			
-
+		    for (i in 0..255) loop
+                if Est_Present(Character'Val(i), Dictionnaire) then
+                    Character'Output(Flux, Character'Val(i));
+                    Natural'Output(Flux, Get_Infos(Character'Val(i), Dictionnaire).Code.Longueur);
+                    Positive := Positive + Natural'size + Character'size; --Normalement 5 Octets stockes : 1 pour le character et 4 pour le Natural
+                end if;    
+            end loop;
 			
 			return Positive;
 	end function;
