@@ -11,6 +11,7 @@ begin
     D  := Cree_Dico;
     Affiche(D);
 
+    Put_Line("Ajout de A avec 2 occurences");
     C := Cree_Code;
     Ajoute_Avant(ZERO, C);
     Ajoute_Avant(UN, C);
@@ -20,6 +21,7 @@ begin
     Incremente_Nb_Occurences('A', D);
     Affiche(D);
 
+    Put_Line("Ajout de z avec 1 occurence"); 
     C := Cree_Code;
     Ajoute_Avant(ZERO, C);
     Ajoute_Apres(UN, C);
