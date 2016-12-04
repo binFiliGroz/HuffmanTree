@@ -20,7 +20,7 @@ type Noeud is record
 	Fd, Fg : Arbre;
 	end record;
 
-type Tableau_Char is array of Integer;
+type Tableau_Char is array (integer range 0..255) of Integer;
 	
 
 	-- Procedure recursive sur les Arbres (Huffman Tree : Contient 1 arbre et des données)
@@ -35,11 +35,11 @@ type Tableau_Char is array of Integer;
 	procedure Libere(H :in out Arbre_Huffman) is
 		begin
 			Libere_Arbre(H.A);
-			Free(H.Nb_Total_Caracteres));
+			Free(H.Nb_Total_Caracteres);
 			Free(H);
 	end Libere;
 
-	-- Procedure recursive syr les Arbres 	
+	-- Procedure recursive sur les Arbres 	
 	procedure Affiche_Arbre(A : in Arbre) is
 		begin
 			Put(A.Char);
@@ -59,7 +59,7 @@ type Tableau_Char is array of Integer;
 
 	
 	
-	function Cree_Huffman(Nom_Fichier : in String) is
+	function Cree_Huffman(Nom_Fichier : in String) return Arbre_Huffman is
 		Fichier : Ada.Streams.Stream_IO.File_Type;
 		Flux : Ada.Streams.Stream_IO.Stream_Access;
 		C : Character;
@@ -92,11 +92,11 @@ type Tableau_Char is array of Integer;
 			end loop;
 
 			-- Cree la liste de priorite
-			for (i in 0..255) loop
-				if (Est_Present(,Dico) then
-					j=Get_nb_occurences(Character'Val(i), Dico);
+			for i in integer range 0..255 loop
+				if (Est_Present(Character'Val(i),Dico)) then
+					j:=Get_nb_occurences(Character'Val(i), Dico);
 					A := new Arbre;
-					A.Char = Character'Val(i);
+					A.Char := Character'Val(i);
 					if Est_Pleine(File_Prio) then
 						raise File_Pleine;
 					else
@@ -123,15 +123,13 @@ type Tableau_Char is array of Integer;
 				end if;
 			end loop;
 
-
-
 			Close(Fichier);
 			return Arbre_Huffman;
 	end Cree_Huffman;
 
 
 	
-	function Ecrit_Huffman(H : in Arbre_Huffman ; Flux : Ada.Streams_IO.Stream_Access) is
+	function Ecrit_Huffman(H : in Arbre_Huffman ; Flux : Ada.Streams_IO.Stream_Access) return Positive is
 
 		Dictionnaire : Dico_Caracteres;
         i : Integer;
@@ -140,7 +138,7 @@ type Tableau_Char is array of Integer;
 		Nb_Octets_Ecrits : Positive := 0;
 		Nb_Caracteres_Diff : Natural := Nb_Caracteres_Differents(D);
 		Infos : Info_Caractere;
-		Stock_Dico : Stockage_Dico
+		Stock_Dico : Stockage_Dico;
 		begin
 		
 			-- On cree le dictionnaire associe a l'arbre afin de le stocker
@@ -165,19 +163,40 @@ type Tableau_Char is array of Integer;
 
 
 
-	function Lit_Huffman(Flux : Ada.Streams.Stream_IO.Stream_Access)
+	function Lit_Huffman(Flux : Ada.Streams.Stream_IO.Stream_Access) return Arbre_Huffman is
 		Nb_Caracteres_Diff : Natural;
-		H : Arbre_Huffman;
-		begin
-			Nb_Caracteres_Diff := Natural'Input(Flux);
-			for i : Integer in 0..Nb_Caracteres_Diff loop
+		H : Arbre_Huffman := new Arbre_Huffman;
+		Caractere : Character;
+		Longueur : Natural;
+		A : Arbre := new Arbre;
+		procedure creation_arbre(A: in out Arbre; Pere : in out Arbre;  L: in out Natural; C: in Character) is
+
+		begin 
+			if (L = 0 && A.Char = null) then
+				A.Char := C;
+			elsif (L =0 && A.Char /= null) then
 				
+			end if;
+
+
+		end creation_arbre;
+		begin
+		
+			Nb_Caracteres_Diff := Natural'Input(Flux);
+			Caractere := Character'Input(Flux);
+			Longueur := Natural'Input(Flux);
+			for i : Integer in range 0..Nb_Caracteres_Diff loop
+				Caractere := Character'Input(Flux);
+				Longueur := Natural'Input(Flux);
+
+				creation_arbre(A, Longueur, Caractere);
+
 			end loop;
 
 			
 
 			return Arbre_Huffman;
-	end Ecrit_Huffman;
+	end Lit_Huffman;
 
 
 	function Est_Feuille(A : Arbre) is
@@ -189,7 +208,7 @@ type Tableau_Char is array of Integer;
 		end if;
 	end Est_Feuille;
 
-	function Genere_Dictionnaire(H : in Arbre_Huffman)
+	function Genere_Dictionnaire(H : in Arbre_Huffman) return Dico_Caracter is
 	Dico : Dico_Caracteres := Cree_Dico; 
 	begin
 		Genere_Dictionnaire(H.A, Dico, File);
@@ -201,7 +220,7 @@ type Tableau_Char is array of Integer;
     		Code: Code_Binaire;
     		Caractere: Character;
 		begin
-    		if (Est_Feuille(A) then
+    		if (Est_Feuille(A)) then
         		Caractere := A.Char; 
 				-- a recuperer dans l'arbre
         		Code := File_vers_Code(F);
@@ -214,7 +233,7 @@ type Tableau_Char is array of Integer;
 	end Genere_Dictionnaire;
 
 
-	procedure Get_Caractere(It_Code : in Iterateur_Code; A : in out Arbre; Caractere_Trouve : out Boolean; Caractere : out Character);
+	procedure Get_Caractere(It_Code : in Iterateur_Code; A : in out Arbre; Caractere_Trouve : out Boolean; Caractere : out Character) is
 			begin
 
 	end Get_Caractere;
