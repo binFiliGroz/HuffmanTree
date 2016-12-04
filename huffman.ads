@@ -1,7 +1,9 @@
 with Ada.Streams.Stream_IO; use Ada.Streams.Stream_IO;
-with dico; use dico;
+with Dico; use Dico;
 with Code; use Code;
-
+with File_priorite; 
+with Ada.Text_Io, Ada.Integer_Text_Io;
+use Ada.Text_Io, Ada.Integer_Text_Io;
 -- paquetage representant un arbre de Huffman de caracteres
 
 package Huffman is
@@ -47,7 +49,7 @@ package Huffman is
 	-- dans l'arbre et leur code binaire (evite les parcours multiples)
 	-- de l'arbre
 	function Genere_Dictionnaire(H : in Arbre_Huffman) return Dico_Caracteres;
-	procedure Genere_Dictionnaire(A : in Arbre_Huffman; D : in out Dico_Caracteres; F: File);
+	procedure Genere_Dico(A : in Arbre; D : in out Dico_Caracteres; F: in out File);
 
 
 ------ Parcours de l'arbre (decodage)
