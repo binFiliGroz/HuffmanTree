@@ -27,6 +27,7 @@ procedure tp_huffman is
 
 	B : Bit;
 	Nb_Total : Integer := 0;
+	Nb_final : Integer := 0;
 	N : Integer := 0;
 	L : Integer := 0;
 
@@ -90,6 +91,8 @@ procedure tp_huffman is
 		-- Puis à le stocker dans le fichier de sortie
 		It_Code := Cree_Iterateur(Code);
 		While Has_Next(It_Code) loop
+			L := 0;
+			N := 0;
 			While (L /= 8 and Has_Next(It_Code))  loop
 				B := Next(It_Code);
 				if (B = 1) then
@@ -99,17 +102,16 @@ procedure tp_huffman is
 			end loop;
 			C := Character'Val(N);
 			Character'Output(Flux_Out, C);
-			N := 0;
-			L := 0;
 		end loop;
 
 		-- Notons qu'on ne tombe pas forcement sur un dernier octet complet : on stocke la longueur valide
-		-- Nombre total de caracteres : Nb_Total
-		Character'Output(Flux_Out, Character'Val(Nb_Total));
+		-- Nombre total de caracteres : Nb_final
+		Character'Output(Flux_Out, Character'Val(Nb_final));
 
 
 		-- Le fichier compresse est maintenant stocke;
-
+		Libere_Code(Code);
+		Libere(Huf_Tree);
 		Close(Fichier_Out);
 		
 		Put("Le Fichier compresse est disponible.");
@@ -124,8 +126,94 @@ procedure tp_huffman is
 ------------------------------------------------------------------------------
 
 	procedure Decompresse(Nom_Fichier_In, Nom_Fichier_Out : in String) is
+	Nb_final : Integer := 0;
+	Nb_Caracteres_Diff : Natural := 0;
+	Fichier_In, Fichier_Out : Ada.Streams.Stream_IO.File_Type;
+	Flux_In1, Flux_In2, Flux_Out : Ada.Streams.Stream_IO.Stream_Access;
+	Huf_Tree : Arbre_Huffman;
+	Nb_Octets_Ecrits : Positive;
+	C : Character;
+	Dico : Dico_Caracteres := Cree_Dico;
+	Caractere_Trouve : Boolean := false;
+	Code : Code_Binaire := Cree_Code;
+	Noms_De_Fichier_Similaires : exception;
+	It_Code : Iterateur_Code;	
 	begin
-		-- A COMPLETER!
+	if (Nom_Fichier_In = Nom_Fichier_Out) then
+		raise Noms_De_Fichier_Similaires;
+		return;
+	end if;
+	
+
+	Put("Ouverture du fichier compresse ...");
+	New_Line;
+	Open(Fichier_In, In_File, Nom_Fichier_In);
+	Flux_In1 := Stream(Fichier_In);
+	
+
+
+	While not End_Of_File(Fichier_In) loop
+		C := Character'Input(Flux_In1);
+	end loop;
+	Nb_final := Character'Pos(C);
+	
+
+
+	Flux_In2 := Stream(Fichier_In);
+
+
+
+	-- On doit d'abord recreer l'arbre de Huffman stocke lors de la compression
+	Put("Generation de l'arbre de Huffman strocke dans le fichier compresse ...");
+	New_Line;
+	Huf_Tree := Lit_Huffman(Flux_In2);
+
+
+
+	Put("Creation du fichier de sortie et son flux associe ...");
+	New_Line;
+	Create(Fichier_Out, Out_File, Nom_Fichier_Out);
+	Flux_Out := Stream(Fichier_Out);
+
+
+
+	Put("Generation du dictionnaire associe au fichier ...");
+	New_Line;
+	Dico := Genere_Dictionnaire(Huf_Tree);
+	
+
+
+	Put("Generation du code Binaire ...");
+	New_Line;
+	while not End_Of_File(Fichier_In) loop
+		C := Character'Input(Flux_In2);
+		Ajoute_Apres(Get_Code( C , Dico ) , Code);
+	end loop;
+
+	
+
+
+	Put("Demarrage de la decompression ...");
+	New_Line;
+	It_Code := Cree_Iterateur(Code);
+	while not Has_Next(It_Code) loop
+		while not Caractere_Trouve loop
+			Get_Caractere(It_Code, Huf_Tree.A, Caractere_Trouve, C);
+		end loop;
+		Character'Output(Flux_Out, C);
+		Caractere_Trouve := false;
+	end loop;
+
+
+	Libere_Iterateur(It_Code);
+	Libere_Code(Code);
+	Libere(Huf_Tree);
+	Put("Fermeture des Fichiers ...");
+	New_Line;
+	Close(Fichier_In);
+	Close(Fichier_Out);
+	Put("Fichiers disponibles");
+	New_Line;
 		return;
 	end Decompresse;
 
