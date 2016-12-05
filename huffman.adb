@@ -4,8 +4,16 @@ with File_Priorite;
 with Dico; use Dico;
 with Code; use Code;
 with Ada.Streams.Stream_IO; use Ada.Streams.Stream_IO;
+with Ada.Unchecked_Deallocation;
+
 
 package body huffman is 
+
+
+	type Octet is new Integer range 0..255;
+	for Octet'Size use 8;
+
+
 
 	function Est_Prioritaire (P1, P2: Integer) return boolean is
 	begin
@@ -13,6 +21,8 @@ package body huffman is
 	end Est_Prioritaire;
 
 	package File_Priorite_Arbre is new File_Priorite(Arbre, Integer, Est_Prioritaire); 
+	
+	
 	use File_Priorite_Arbre;
 
 type Noeud is record 
@@ -22,6 +32,7 @@ type Noeud is record
 
 type Tableau_Char is array (integer range 0..255) of Integer;
 	
+	procedure free_Arbre is new Ada.Unchecked_Deallocation(Noeud, Arbre);
 
 	-- Procedure recursive sur les Arbres (Huffman Tree : Contient 1 arbre et des données)
 	procedure Libere(H : in out Arbre_Huffman) is
@@ -32,12 +43,12 @@ type Tableau_Char is array (integer range 0..255) of Integer;
 				elsif (A.Fg /=null) then
 					Libere_Arbre(A.Fg);
 				end if;
-				Free(A);
+				free_Arbre(A);
 		end Libere_Arbre;
 
 		begin
 			Libere_Arbre(H.A);
-			Free(H.Nb_Total_Caracteres);
+			free(H.Nb_Total_Caracteres);
 			Free(H);
 	end Libere;
 
@@ -92,7 +103,8 @@ type Tableau_Char is array (integer range 0..255) of Integer;
 			-- Lecture et creation d'un dictionnaire
 			while not End_Of_File(Fichier) loop
 				C := Character'Input(Flux);
-				Incremente_Dico(C,Dico);
+
+				Incremente_Nb_Occurences(C, Dico);
 				Nb_Total_Caracteres := Nb_Total_caracteres + 1;
 			end loop;
 
@@ -249,6 +261,7 @@ type Tableau_Char is array (integer range 0..255) of Integer;
     		Code: Code_Binaire;
     		Caractere: Character;
 		begin
+		-- Utiliser Code
     		if (Est_Feuille(A)) then
         		Caractere := A.Char; 
 				-- a recuperer dans l'arbre
