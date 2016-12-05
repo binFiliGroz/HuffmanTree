@@ -26,6 +26,7 @@ procedure tp_huffman is
 	It_Code : Iterateur_Code;
 
 	B : Bit;
+	Nb_Total : Integer := 0;
 	N : Integer := 0;
 	L : Integer := 0;
 
@@ -76,6 +77,7 @@ procedure tp_huffman is
 
 
 		While not End_Of_File(Fichier_In) loop
+			Nb_Total := Nb_Total + 1;
 			C := Character'Input(Flux_In);
 			Ajoute_Apres( Get_Code(C,Dico) , Code );
 		end loop;
@@ -101,11 +103,18 @@ procedure tp_huffman is
 			L := 0;
 		end loop;
 
+		-- Notons qu'on ne tombe pas forcement sur un dernier octet complet : on stocke la longueur valide
+		-- Nombre total de caracteres : Nb_Total
+		Character'Output(Flux_Out, Character'Val(Nb_Total));
+
+
 		-- Le fichier compresse est maintenant stocke;
 
 		Close(Fichier_Out);
 		
-		return;
+		Put("Le Fichier compresse est disponible.");
+		New_Line;
+
 	end Compresse;
 
 
