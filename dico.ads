@@ -6,16 +6,8 @@ with Ada.Streams.Stream_IO;
 
 package Dico is
 
-    type Element_Stockage is record
-        C: Character;
-        L: Natural;
-    end record;
-
-    type Stockage_Dico is array (integer range <>) of Element_Stockage;
-
 	-- Informations associees a un caractere
 	type Info_Caractere is record
-        Caractere : Character;
 		Code : Code_Binaire;
 		Nb_Occ : Natural;
 	end record;
@@ -49,6 +41,10 @@ package Dico is
 	                    Infos : in Info_Caractere;
 	                    D : in out Dico_Caracteres);
 
+	procedure Set_Nb_Occurences(C : in Character;
+					Nb_Occ : Natural;
+					D : in out Dico_Caracteres);
+
 	procedure Incremente_Nb_Occurences(C : in Character;
 					 D : in out Dico_Caracteres);
 
@@ -80,10 +76,6 @@ package Dico is
 	-- Retourne le nombre total de caracteres
 	--  =  somme des nombre d'occurences de tous les caracteres de D
 	function Nb_Total_Caracteres(D : in Dico_Caracteres) return Natural;
-
--- generation du tableau de stockage du codage dans le fichier
-   
-    function Genere_Tableau_Stockage(D: in Dico_Caracteres) return Stockage_Dico;
 
 private 
 	-- Le type Dico_Caracteres_Interne doit etre defini dans le corps

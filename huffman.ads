@@ -14,8 +14,7 @@ package Huffman is
 		-- l'arbre de Huffman proprement dit
 		A : Arbre;           
 		-- autres infos utiles: nb total de caracteres lus, ...
-		Nb_Total_Caracteres : Natural;
-		-- A completer selon vos besoins!
+		Nb_Caracteres_Differents : Natural;
 	end record;
 
 	-- Libere l'arbre de racine A.
@@ -49,7 +48,6 @@ package Huffman is
 	-- dans l'arbre et leur code binaire (evite les parcours multiples)
 	-- de l'arbre
 	function Genere_Dictionnaire(H : in Arbre_Huffman) return Dico_Caracteres;
-	procedure Genere_Dico(A : in Arbre; D : in out Dico_Caracteres; F: in out File);
 
 
 ------ Parcours de l'arbre (decodage)
