@@ -1,8 +1,10 @@
 with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
+with Ada.Text_Io; use Ada.Text_Io;
 with Ada.Unchecked_Deallocation;
 
 package body Code is
 
+    -- Code implemente par une liste chainne de bits
     type Element;
     type Liste_Bits is access Element;
     type Element is record
@@ -13,6 +15,7 @@ package body Code is
     type Code_Binaire_Interne is record
         Longueur: Natural;
         Bits: Liste_Bits;
+	Dernier_Bit: Liste_Bits;
     end record;
 
     procedure Libere_Elem is new Ada.Unchecked_Deallocation(Element, Liste_Bits);
@@ -34,12 +37,13 @@ package body Code is
         Copie := Cree_Code;
 
         if (C.Longueur = 0) then
-            return C;
+            return Copie;
         end if;
         Copie.Bits := new Element;
         Cour := Copie.Bits;
-
         Cour.B := C.Bits.B;
+
+	Copie.Dernier_Bit := Cour;
 
         Cpos := C.Bits;
         for I in Integer range 1..(C.Longueur - 1) loop
@@ -47,6 +51,9 @@ package body Code is
             Cour := Cour.Suiv;
             CPos := CPos.Suiv;
             Cour.B := CPos.B;
+	    if (I = (C.Longueur - 1)) then
+		Copie.Dernier_Bit := Cour;
+	    end if;
         end loop;
         Copie.Longueur := C.Longueur;
 	return Copie;
@@ -88,77 +95,50 @@ package body Code is
         C.Bits := new Element;
         C.Bits.B := B;
         C.Bits.Suiv := Liste;
+	if (Longueur(C) = 0) then
+	    C.Dernier_Bit := C.Bits;
+	end if;
         C.Longueur := C.Longueur + 1;
     end Ajoute_Avant;
 
     procedure Ajoute_Apres(B: in Bit; C: in out Code_Binaire) is
-        Cour: Liste_Bits;
     begin
-        Cour := C.Bits;
-        if (C.Longueur > 0) then
-            if (C.Longueur > 1) then
-                for I in Integer range 0..(C.Longueur - 2) loop
-                    Cour := Cour.Suiv;
-                end loop;
-            end if;
-            Cour.Suiv := new Element;
-            Cour := Cour.Suiv;
-            Cour.B := B;
-            Cour.Suiv := null;
-        else
-            C.Bits := new Element;
-            C.Bits.B := B;
-            C.Bits.Suiv := null;
-        end if;
-        C.Longueur := C.Longueur + 1;
+	if (Longueur(C) > 0) then
+	    C.Dernier_Bit.Suiv := new Element;
+	    C.Dernier_Bit := C.Dernier_Bit.Suiv;
+	    C.Dernier_Bit.B := B;
+	else
+	    C.Bits := new Element;
+	    C.Bits.B := B;
+	    C.Dernier_Bit := C.Bits;
+	end if;
+	C.Longueur := C.Longueur + 1;
     end Ajoute_Apres;
     
+    -- copie les bits de C1 à la fin de ceux de C
     procedure Ajoute_Apres(C1: in Code_Binaire; C: in out Code_Binaire) is
         Cour, C1Cour: Liste_Bits;
-	C1Pos: Natural;
     begin
 	if (Longueur(C1) > 0) then
-	    Cour := C.Bits;
-	    if (Longueur(C) > 0) then
-		if (Longueur(C) > 1) then
-		    for I in Integer range 0..(Longueur(C) - 2) loop
-			Cour := Cour.Suiv;
-		    end loop;
+	    C1Cour := C1.Bits;
+	    Cour := C.Dernier_Bit;
+	    for I in Natural range 0..(Longueur(C1) - 1) loop
+		if (I = 0 and then Longueur(C) = 0) then
+		    C.Bits := new Element;
+		    Cour := C.Bits;
+		else
+		    Cour.Suiv := new Element;
+		    Cour := Cour.Suiv;
 		end if;
-	        C1Cour := C1.Bits;
-		C1Pos := 0;
-		C1Cour := C1.Bits;
-	    else
-		C.Bits := new Element;
-		Cour := C.Bits;
-		Cour.B := C1.Bits.B;
-		C1Pos := 1;
-		C1Cour := C1.Bits.Suiv;
-	    end if;
-	    for I in Natural range C1Pos..(Longueur(C1) - 1) loop
-		Cour.Suiv := new Element;
-		Cour := Cour.Suiv;
 		Cour.B := C1Cour.B;
 		C1Cour := C1Cour.Suiv;
+		if (I = (Longueur(C1) - 1)) then
+		    C.Dernier_Bit := Cour;
+		end if;
 	    end loop;
 	    C.Longueur := Longueur(C) + Longueur(C1);
 	end if;
     end Ajoute_Apres;
-
-    procedure Tronque_Code(L : in Natural; Code : in out Code_Binaire) is
-	Cour, Suiv : Liste_Bits;
-    begin
-	Cour := Code.Bits;
-	for I in Integer range 0..(Longueur(Code) - 1) loop
-	    Suiv := Cour.Suiv;
-	    if (I >= L) then
-		Libere_Elem(Cour);
-	    end if;
-	    Cour := Suiv;
-	end loop;	
-        
-	Code.Longueur := L;
-    end Tronque_Code;
 
     function Character_Vers_Code(C : Character) return Code_Binaire is
         Code: Code_Binaire;
@@ -174,6 +154,9 @@ package body Code is
         return Code;
     end Character_Vers_Code;
 
+    -- iterateur implemente par un lien vers le code a iterer
+    -- ainsi qu'une reference sur l'element suivant
+    -- et un compteur
     type Iterateur_Code_Interne is record
         C: Code_Binaire;
         Pos: Natural;

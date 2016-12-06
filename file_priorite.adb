@@ -1,6 +1,8 @@
 with Ada.Unchecked_Deallocation;
 
 package body File_Priorite is
+
+    -- file a priorites implementee par un tas lui meme stocke sous forme de tableau
     type Element is record
         D: Donnee;
         P: Priorite;   
@@ -11,7 +13,7 @@ package body File_Priorite is
 
     type File_Interne is record
         Capacite: Positive;
-	    Dernier_Elem: Integer;
+	Dernier_Elem: Integer;
         Tab: Tableau_Tas_A;
     end record;
 
@@ -23,6 +25,8 @@ package body File_Priorite is
     begin
         F := new File_Interne;
         F.all.Capacite := Capacite;
+	-- le tableau commence a l'indice 1 pour reperer les fils 
+	-- aux indices 2*i et 2*i+1
         F.all.Tab := new Tableau_Tas(1..Capacite);
 	F.all.Dernier_Elem := 0;
         return F;
@@ -66,12 +70,16 @@ package body File_Priorite is
 	I: Integer;
 	Pere: Integer;
     begin
+	-- si la file est pleine on leve une exception
 	if (Est_Pleine(F)) then
 	    raise File_Prio_Pleine;
 	end if;
+	-- on ajoute le nouvel element en derniere position
 	F.Dernier_Elem := F.Dernier_Elem + 1;
 	F.Tab(F.Dernier_Elem).D := D;
 	F.Tab(F.Dernier_Elem).P := P;
+	-- on reorganise le tas en echangeant l'element ajoute avec son pere
+	-- tant qu'il est plus prioritaire
 	if (not Est_Vide(F)) then
 	    I := F.Dernier_Elem;
 	    Pere := I/2;
@@ -84,6 +92,8 @@ package body File_Priorite is
     end Insere;
 
     procedure Supprime(F: in File_Prio; D: out Donnee; P: out Priorite) is
+	-- cette fonction determine le plus prioritaire des fils 
+	-- elle retourne son indice ou 0 si le pere est plus prioritaire
 	function Max_Fils(F: in File_Prio; Pere: Integer) return Integer is
 	    I: Integer;
 	    P: Priorite;
@@ -111,15 +121,20 @@ package body File_Priorite is
 	if (Est_Vide(F)) then
 	    raise File_Prio_Vide;
 	end if;
+	-- enregistrement de l'element le plus prioritaire
+	-- pour le retourner
 	D := F.Tab(1).D;
 	P := F.Tab(1).P;
+	-- deplacement du dernier element au sommet du tas
 	F.Tab(1).D := F.Tab(F.Dernier_Elem).D;
 	F.Tab(1).P := F.Tab(F.Dernier_Elem).P;
 	F.Dernier_Elem := F.Dernier_Elem - 1;
 
+	-- reorganisation de la file de priorites
 	Pere := 1;
-
 	loop
+	    -- tant qu'un des fils est plus prioritaire
+	    -- on l'echange avec son pere
 	    I := Max_Fils(F, Pere);
 	    if (I = 0) then
 		exit;

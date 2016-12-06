@@ -38,8 +38,6 @@ package Code is
 	-- Ajoute les bits de C1 apres ceux de C
 	procedure Ajoute_Apres(C1 : in Code_Binaire; C : in out Code_Binaire);
 
-	procedure Tronque_Code(L : in Natural; Code : in out Code_Binaire);
-
     -- Retourne le code binaire d'un octect
     function Character_Vers_Code(C : Character) return Code_Binaire;
 

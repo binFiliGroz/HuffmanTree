@@ -195,7 +195,7 @@ package body huffman is
 	    begin
 		if (A /= null) then
 		    if (Est_Feuille(A)) then
-                Set_Nb_Occurences(A.Char, A.Nb_Occ, D);
+	                Set_Nb_Occurences(A.Char, A.Nb_Occ, D);
 			Set_Code(A.Char, Code, D);
 		    else
 			CodeG := Cree_Code(Code);
@@ -206,9 +206,8 @@ package body huffman is
 			Ajoute_Apres(UN, CodeD);
 			Genere_Dico(A.Fd, D, CodeD);
 		    end if;
-		else
-		    Libere_Code(Code);
 		end if;
+		Libere_Code(Code);
 	    end Genere_Dico;
 
 	    CodeVide : Code_Binaire;

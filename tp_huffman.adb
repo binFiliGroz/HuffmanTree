@@ -110,6 +110,7 @@ procedure tp_huffman is
 
 
 		-- Le fichier compresse est maintenant stocke;
+		Libere(Dico);
 		Libere_Code(Code);
 		Libere(Huf_Tree);
 		Close(Fichier_Out);
