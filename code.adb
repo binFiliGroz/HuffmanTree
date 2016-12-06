@@ -145,6 +145,21 @@ package body Code is
 	end if;
     end Ajoute_Apres;
 
+    procedure Tronque_Code(L : in Natural; Code : in out Code_Binaire) is
+	Cour, Suiv : Liste_Bits;
+    begin
+	Cour := Code.Bits;
+	for I in Integer range 0..(Longueur(Code) - 1) loop
+	    Suiv := Cour.Suiv;
+	    if (I >= L) then
+		Libere_Elem(Cour);
+	    end if;
+	    Cour := Suiv;
+	end loop;	
+        
+	Code.Longueur := L;
+    end Tronque_Code;
+
     function Character_Vers_Code(C : Character) return Code_Binaire is
         Code: Code_Binaire;
     begin

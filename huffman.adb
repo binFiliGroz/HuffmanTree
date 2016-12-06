@@ -126,16 +126,12 @@ package body huffman is
 		Open(Fichier, In_File, Nom_Fichier);
 		Flux := Stream(Fichier);
 
-		Put("Lecture  des Données");
-
 		-- Lecture et creation d'un dictionnaire
 		while not End_Of_File(Fichier) loop
 			C := Character'Input(Flux);
 			Incremente_Nb_Occurences(C, Dico);
 		end loop;
 
-        New_Line;
-        Affiche_Occurences(Dico);
         Arbre_H := Cree_Huffman_Depuis_Dico(Dico);
 
 		Close(Fichier);
@@ -179,10 +175,6 @@ package body huffman is
 	begin
 	    Nb_Caracteres_Diff := Natural'Input(Flux);
         
-        New_Line; Put("Lecture Huffman ..."); New_Line;
-        Put("Nb_Caracteres_Diff : "); Put(Nb_Caracteres_Diff);
-        New_Line;
-
         Dico := Cree_Dico;
 
 	    for I in integer range 0..(Nb_Caracteres_Diff-1) loop
@@ -192,8 +184,6 @@ package body huffman is
 	    end loop;
 
         H := Cree_Huffman_Depuis_Dico(Dico); 
-
-	Affiche_Occurences(Dico);
 
         Libere(Dico);
 	    return H;

@@ -49,22 +49,21 @@ procedure tp_huffman is
 
 		While (((Choix /= 'Y') and then (Choix /= 'y')) and then ((Choix /= 'n') and then (Choix /= 'N'))) loop
 			Put("Souhaitez-vous afficher cet arbre pour le verifier ? (Yy/Nn)");
-			New_Line;
 			Get_Immediate(Choix);
-			New_Line;
 		end loop;
 
 		if ((Choix = 'Y') or (Choix = 'y')) then
+			New_Line;
 			Affiche(Huf_Tree);
 		end if;
 		New_Line;
 		
-		Put("Creation du fichier de sortie et son flux associe ...");
+		Put("Creation du fichier de sortie et de son flux associe ...");
 		New_Line;
 		Create(Fichier_Out, Out_File, Nom_Fichier_Out);
 		Flux_Out := Stream(Fichier_Out);
 
-		Put("Ecriture du Dictionnaire dans le fichier ...");
+		Put("Stockage de l'arbre de Huffman dans le fichier ...");
 		New_Line;
 		P := Ecrit_Huffman(Huf_Tree, Flux_Out);
 		Put(Positive'Image(Integer(P)) & " Octets ont ete ecrits dans le fichier (pour les stats)");
@@ -76,7 +75,6 @@ procedure tp_huffman is
 
 		Put("Compression du fichier en entree dans celui de sortie ...");
 		New_Line;
-
 
 
 		While not End_Of_File(Fichier_In) loop
@@ -116,7 +114,7 @@ procedure tp_huffman is
 		Libere(Huf_Tree);
 		Close(Fichier_Out);
 		
-		Put("Le Fichier compresse est disponible.");
+		Put("Le fichier compresse est disponible.");
 		New_Line;
 
 	end Compresse;
@@ -171,7 +169,7 @@ procedure tp_huffman is
 	Huf_Tree := Lit_Huffman(Flux_In2);
 
 
-	Put("Creation du fichier de sortie et son flux associe ...");
+	Put("Creation du fichier de sortie et de son flux associe ...");
 	New_Line;
 	Create(Fichier_Out, Out_File, Nom_Fichier_Out);
 	Flux_Out := Stream(Fichier_Out);
@@ -189,17 +187,16 @@ procedure tp_huffman is
 	Put("Demarrage de la decompression ...");
 	New_Line;
 	It_Code := Cree_Iterateur(Code);
-	Put("Longueur code : "); Put(Longueur(Code));
+	Put("Nombre de bits a decoder : "); Put(Longueur(Code));
 	New_Line;
 	while Has_Next(It_Code) loop
 		A := Huf_Tree.A;
 		Get_Caractere(It_Code, A, Caractere_Trouve, C);
 		if (Caractere_Trouve) then
-		    Put(C);
 		    Character'Output(Flux_Out, C);
 		    Caractere_Trouve := False;
 		else 
-		    Put("fin fichier");
+		    Put_Line("Caractere non reconnu");
 		    exit;
 		end if;
 	end loop;
@@ -208,7 +205,7 @@ procedure tp_huffman is
 	Libere_Iterateur(It_Code);
 	Libere_Code(Code);
 	Libere(Huf_Tree);
-	Put("Fermeture des Fichiers ...");
+	Put("Fermeture des fichiers ...");
 	New_Line;
 	Close(Fichier_In);
 	Close(Fichier_Out);
