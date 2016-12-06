@@ -187,13 +187,13 @@ package body huffman is
 
 	    for I in integer range 0..(Nb_Caracteres_Diff-1) loop
 		    C := Character'Input(Flux);
-            Put(C);
 		    F := Natural'Input(Flux);
 		    Set_Nb_Occurences(C, F, Dico);
-            Put(I); New_Line;
 	    end loop;
 
         H := Cree_Huffman_Depuis_Dico(Dico); 
+
+	Affiche_Occurences(Dico);
 
         Libere(Dico);
 	    return H;
@@ -231,23 +231,22 @@ package body huffman is
 	end Genere_Dictionnaire;
 
 	procedure Get_Caractere(It_Code : in Iterateur_Code; A : in out Arbre; Caractere_Trouve : out Boolean; Caractere : out Character) is
+	    B: Bit;
 	begin
-        while (Has_Next(It_Code)) loop
-            if (A /= null) then
-                if (Next(It_Code) = ZERO) then
-                    A := A.Fg;
-                elsif  (Next(It_Code) = UN) then
-                    A := A.Fd;
-                end if;
-            else
-                exit;
-            end if;
-        end loop;
-        if (A = null) then
-            Caractere_Trouve := False;
-        elsif Est_Feuille(A) then
-            Caractere_Trouve := True;
-            Caractere := A.Char;
-        end if;
+	    while (Has_Next(It_Code) and then (not Est_Feuille(A))) loop
+		B := Next(It_Code);
+	        if (B = ZERO) then
+		   A := A.Fg;
+		elsif  (B = UN) then
+		   A := A.Fd;
+		end if;
+	    end loop;
+
+	    if (Est_Feuille(A)) then
+		Caractere := A.Char;
+		Caractere_Trouve := True;
+	    else
+		Caractere_Trouve := False;
+	    end if;
 	end Get_Caractere;
 end huffman;

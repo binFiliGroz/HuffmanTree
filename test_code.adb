@@ -47,4 +47,10 @@ begin
     Libere_Iterateur(It);
     Libere_Code(C);
     Libere_Code(Copie);
+
+    New_Line;
+    Put_Line("Test conversion entier vers binaire");
+    C := Character_Vers_Code(Character'Val(2));
+    Affiche(C);
+    Libere_Code(C);
 end test_code;

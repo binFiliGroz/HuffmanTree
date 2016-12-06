@@ -151,9 +151,9 @@ package body Code is
         Code := Cree_Code;
         for I in Natural range 0..7 loop
             if ((Character'Pos(C) / 2**I) = 1) then
-                Ajoute_Apres(UN, Code);
+                Ajoute_Avant(UN, Code);
             else
-                Ajoute_Apres(ZERO, Code);
+                Ajoute_Avant(ZERO, Code);
             end if;
         end loop;
         return Code;

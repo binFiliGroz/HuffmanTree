@@ -133,6 +133,7 @@ procedure tp_huffman is
 	Fichier_In, Fichier_Out : Ada.Streams.Stream_IO.File_Type;
 	Flux_In1, Flux_In2, Flux_Out : Ada.Streams.Stream_IO.Stream_Access;
 	Huf_Tree : Arbre_Huffman;
+	A : Arbre;
 	Nb_Octets_Ecrits : Positive;
 	C : Character;
 	Dico : Dico_Caracteres := Cree_Dico;
@@ -161,16 +162,13 @@ procedure tp_huffman is
 	--Nb_final := Character'Pos(C);
 	
 
-
 	Flux_In2 := Stream(Fichier_In);
-
 
 
 	-- On doit d'abord recreer l'arbre de Huffman stocke lors de la compression
 	Put("Generation de l'arbre de Huffman strocke dans le fichier compresse ...");
 	New_Line;
 	Huf_Tree := Lit_Huffman(Flux_In2);
-
 
 
 	Put("Creation du fichier de sortie et son flux associe ...");
@@ -183,7 +181,7 @@ procedure tp_huffman is
 	New_Line;
 	while not End_Of_File(Fichier_In) loop
 		C := Character'Input(Flux_In2);
-        Code_Cour := Character_Vers_Code(C);
+		Code_Cour := Character_Vers_Code(C);
 		Ajoute_Apres(Code_Cour, Code);
         Libere_Code(Code_Cour);
 	end loop;
@@ -191,12 +189,19 @@ procedure tp_huffman is
 	Put("Demarrage de la decompression ...");
 	New_Line;
 	It_Code := Cree_Iterateur(Code);
-	while not Has_Next(It_Code) loop
-		while not Caractere_Trouve loop
-			Get_Caractere(It_Code, Huf_Tree.A, Caractere_Trouve, C);
-		end loop;
-		Character'Output(Flux_Out, C);
-		Caractere_Trouve := false;
+	Put("Longueur code : "); Put(Longueur(Code));
+	New_Line;
+	while Has_Next(It_Code) loop
+		A := Huf_Tree.A;
+		Get_Caractere(It_Code, A, Caractere_Trouve, C);
+		if (Caractere_Trouve) then
+		    Put(C);
+		    Character'Output(Flux_Out, C);
+		    Caractere_Trouve := False;
+		else 
+		    Put("fin fichier");
+		    exit;
+		end if;
 	end loop;
 
 
