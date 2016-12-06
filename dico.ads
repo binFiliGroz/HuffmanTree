@@ -27,6 +27,8 @@ package Dico is
 	-- Affiche pour chaque caractere: son nombre d'occurences et son code
 	-- (s'il a ete genere)
 	procedure Affiche(D : in Dico_Caracteres);
+
+    procedure Affiche_Occurences(D: in Dico_Caracteres);
 	
 	
 -- Ajouts d'informations dans le dictionnaire

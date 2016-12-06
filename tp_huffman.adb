@@ -36,15 +36,17 @@ procedure tp_huffman is
 			raise Noms_De_Fichier_Similaires;
 			return;
 		end if;
+
+		Put("Creation de l'arbre de Huffman associe ...");
+		New_Line;
+		Huf_Tree := Cree_Huffman(Nom_Fichier_In);
+
 		Put("Ouverture du fichier en entree ...");
 		New_Line;
 		Open(Fichier_In, In_File, Nom_Fichier_In);
 		Flux_In := Stream(Fichier_In);
 
-		Put("Creation de l'arbre de Huffman associe ...");
-		New_Line;
-		Huf_Tree := Cree_Huffman(Nom_Fichier_In);
-		
+
 		While (((Choix /= 'Y') and then (Choix /= 'y')) and then ((Choix /= 'n') and then (Choix /= 'N'))) loop
 			Put("Souhaitez-vous afficher cet arbre pour le verifier ? (Yy/Nn)");
 			New_Line;
@@ -80,7 +82,7 @@ procedure tp_huffman is
 		While not End_Of_File(Fichier_In) loop
 			Nb_Total := Nb_Total + 1;
 			C := Character'Input(Flux_In);
-			Ajoute_Apres( Get_Code(C,Dico) , Code );
+			Ajoute_Apres(Get_Code(C,Dico) , Code );
 		end loop;
 
 		Close(Fichier_In);
@@ -136,6 +138,7 @@ procedure tp_huffman is
 	Dico : Dico_Caracteres := Cree_Dico;
 	Caractere_Trouve : Boolean := false;
 	Code : Code_Binaire := Cree_Code;
+    Code_Cour : Code_Binaire;
 	Noms_De_Fichier_Similaires : exception;
 	It_Code : Iterateur_Code;	
 	begin
@@ -148,14 +151,14 @@ procedure tp_huffman is
 	Put("Ouverture du fichier compresse ...");
 	New_Line;
 	Open(Fichier_In, In_File, Nom_Fichier_In);
-	Flux_In1 := Stream(Fichier_In);
+	--Flux_In1 := Stream(Fichier_In);
 	
 
 
-	While not End_Of_File(Fichier_In) loop
-		C := Character'Input(Flux_In1);
-	end loop;
-	Nb_final := Character'Pos(C);
+	--While not End_Of_File(Fichier_In) loop
+	--	C := Character'Input(Flux_In1);
+	--end loop;
+	--Nb_final := Character'Pos(C);
 	
 
 
@@ -176,22 +179,14 @@ procedure tp_huffman is
 	Flux_Out := Stream(Fichier_Out);
 
 
-
-	Put("Generation du dictionnaire associe au fichier ...");
-	New_Line;
-	Dico := Genere_Dictionnaire(Huf_Tree);
-	
-
-
 	Put("Generation du code Binaire ...");
 	New_Line;
 	while not End_Of_File(Fichier_In) loop
 		C := Character'Input(Flux_In2);
-		Ajoute_Apres(Get_Code( C , Dico ) , Code);
+        Code_Cour := Character_Vers_Code(C);
+		Ajoute_Apres(Code_Cour, Code);
+        Libere_Code(Code_Cour);
 	end loop;
-
-	
-
 
 	Put("Demarrage de la decompression ...");
 	New_Line;

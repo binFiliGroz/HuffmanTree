@@ -55,6 +55,7 @@ package body Code is
     procedure Libere_Code(C: in out Code_Binaire) is 
         Cour, Suiv: Liste_Bits;
     begin
+        if (C /= null) then
         Cour := C.Bits;
         for I in Integer range 0..(C.Longueur - 1) loop
 	    Suiv := Cour.Suiv;
@@ -62,6 +63,7 @@ package body Code is
             Cour := Suiv;
         end loop;
         Libere_Code_Binaire_Interne(C);
+    end if;
     end Libere_Code;
 
     function Longueur(C: Code_Binaire) return Natural is
@@ -142,6 +144,20 @@ package body Code is
 	    C.Longueur := Longueur(C) + Longueur(C1);
 	end if;
     end Ajoute_Apres;
+
+    function Character_Vers_Code(C : Character) return Code_Binaire is
+        Code: Code_Binaire;
+    begin
+        Code := Cree_Code;
+        for I in Natural range 0..7 loop
+            if ((Character'Pos(C) / 2**I) = 1) then
+                Ajoute_Apres(UN, Code);
+            else
+                Ajoute_Apres(ZERO, Code);
+            end if;
+        end loop;
+        return Code;
+    end Character_Vers_Code;
 
     type Iterateur_Code_Interne is record
         C: Code_Binaire;

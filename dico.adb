@@ -20,7 +20,7 @@ package body Dico is
 
     procedure Libere(D: in out Dico_Caracteres) is
     	procedure Libere_Info_Caractere(I: in out Info_Caractere) is
-	begin
+	    begin
             Libere_Code(I.Code);
         end Libere_Info_Caractere;
     begin
@@ -50,6 +50,24 @@ package body Dico is
             end if;
         end loop;
     end Affiche;
+
+    procedure Affiche_Occurences(D : in Dico_Caracteres) is
+        procedure Affiche_Info_Caractere(I: Info_Caractere) is 
+        begin
+	        Put("Nb Occ : "); Put(I.Nb_Occ);
+        end Affiche_Info_Caractere;
+
+	C: Character;
+    begin
+        for J in Integer range 0..255 loop
+	    C := Character'Val(J);
+            if (Est_Present(C, D)) then
+		Put("["); Put(C); Put("] "); 
+	        Affiche_Info_Caractere(D(J));
+	        New_Line;
+            end if;
+        end loop;
+    end Affiche_Occurences;
 
     procedure Set_Code(C : in Character; Code : in Code_Binaire; D : in out Dico_Caracteres) is
     begin

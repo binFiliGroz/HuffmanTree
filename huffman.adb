@@ -72,34 +72,15 @@ package body huffman is
 	    Affiche_Arbre(H.A);
 	end Affiche;
 
-	function Cree_Huffman(Nom_Fichier : in String) return Arbre_Huffman is
-	    Fichier : Ada.Streams.Stream_IO.File_Type;
-	    Flux : Ada.Streams.Stream_IO.Stream_Access;
-	    C : Character;
-	    Prio1, Prio2 : Integer;
-	    A : Arbre;
-	    Dico : Dico_Caracteres := Cree_Dico;
-	    File : File_Prio;
-	    Arbre_H : Arbre_Huffman;
-	    Nb_Occurences : Natural;
-	begin
-		Open(Fichier, In_File, Nom_Fichier);
-		Flux := Stream(Fichier);
-
-		Put("Lecture  des Données");
-
-		Put(Integer'Input(Flux));
-		Put(", ");
-		Put(Integer(Octet'Input(Flux))); -- cast necessaire Octet -> Integer
-
-
-		-- Lecture et creation d'un dictionnaire
-		while not End_Of_File(Fichier) loop
-			C := Character'Input(Flux);
-			Incremente_Nb_Occurences(C, Dico);
-		end loop;
-
-		-- Cree la liste de priorite
+    function Cree_Huffman_Depuis_Dico(Dico : Dico_Caracteres) return Arbre_Huffman is
+        Prio1, Prio2 : Integer; 
+        C : Character;
+        Nb_Occurences : Natural;
+        File : File_Prio;
+        A : Arbre;
+        Arbre_H : Arbre_Huffman;
+    begin
+    	-- Cree la liste de priorite
 		File := Cree_File(Nb_Caracteres_Differents(Dico));
 		for I in integer range 0..255 loop
 			C := Character'Val(I);
@@ -130,12 +111,38 @@ package body huffman is
 			end if;
 		end loop;
 
+        Libere_File(File);
+
+        return Arbre_H;
+    end Cree_Huffman_Depuis_Dico;
+
+	function Cree_Huffman(Nom_Fichier : in String) return Arbre_Huffman is
+	    Fichier : Ada.Streams.Stream_IO.File_Type;
+	    Flux : Ada.Streams.Stream_IO.Stream_Access;
+	    C : Character;
+	    Dico : Dico_Caracteres := Cree_Dico;
+	    Arbre_H : Arbre_Huffman;
+	begin
+		Open(Fichier, In_File, Nom_Fichier);
+		Flux := Stream(Fichier);
+
+		Put("Lecture  des Données");
+
+		-- Lecture et creation d'un dictionnaire
+		while not End_Of_File(Fichier) loop
+			C := Character'Input(Flux);
+			Incremente_Nb_Occurences(C, Dico);
+		end loop;
+
+        New_Line;
+        Affiche_Occurences(Dico);
+        Arbre_H := Cree_Huffman_Depuis_Dico(Dico);
+
 		Close(Fichier);
+        Libere(Dico);
 
 		return Arbre_H;
 	end Cree_Huffman;
-
-
 
 	function Ecrit_Huffman(H : Arbre_Huffman ; Flux : Ada.Streams.Stream_IO.Stream_Access) return Positive is
 		Dico : Dico_Caracteres;
@@ -163,8 +170,6 @@ package body huffman is
 			+Natural'Size)  + Natural'Size;
 	end Ecrit_Huffman;
 
-
-
 	function Lit_Huffman(Flux : Ada.Streams.Stream_IO.Stream_Access) return Arbre_Huffman is
 	    C : Character;
 	    F : Natural;
@@ -173,16 +178,24 @@ package body huffman is
 	    Dico : Dico_Caracteres;
 	begin
 	    Nb_Caracteres_Diff := Natural'Input(Flux);
+        
+        New_Line; Put("Lecture Huffman ..."); New_Line;
+        Put("Nb_Caracteres_Diff : "); Put(Nb_Caracteres_Diff);
+        New_Line;
 
-	    H.A := new Noeud;
+        Dico := Cree_Dico;
 
-	    for i in integer range 0..Nb_Caracteres_Diff loop
-		C := Character'Input(Flux);
-		F := Natural'Input(Flux);
-		Set_Nb_Occurences(C, F, Dico);
+	    for I in integer range 0..(Nb_Caracteres_Diff-1) loop
+		    C := Character'Input(Flux);
+            Put(C);
+		    F := Natural'Input(Flux);
+		    Set_Nb_Occurences(C, F, Dico);
+            Put(I); New_Line;
 	    end loop;
 
-	    H.Nb_Caracteres_Differents := Nb_Caracteres_Diff;
+        H := Cree_Huffman_Depuis_Dico(Dico); 
+
+        Libere(Dico);
 	    return H;
 	end Lit_Huffman;
 
@@ -192,6 +205,7 @@ package body huffman is
 	    begin
 		if (A /= null) then
 		    if (Est_Feuille(A)) then
+                Set_Nb_Occurences(A.Char, A.Nb_Occ, D);
 			Set_Code(A.Char, Code, D);
 		    else
 			CodeG := Cree_Code(Code);
@@ -217,8 +231,23 @@ package body huffman is
 	end Genere_Dictionnaire;
 
 	procedure Get_Caractere(It_Code : in Iterateur_Code; A : in out Arbre; Caractere_Trouve : out Boolean; Caractere : out Character) is
-			i : Integer;
-			begin
-				i := i + 1;
+	begin
+        while (Has_Next(It_Code)) loop
+            if (A /= null) then
+                if (Next(It_Code) = ZERO) then
+                    A := A.Fg;
+                elsif  (Next(It_Code) = UN) then
+                    A := A.Fd;
+                end if;
+            else
+                exit;
+            end if;
+        end loop;
+        if (A = null) then
+            Caractere_Trouve := False;
+        elsif Est_Feuille(A) then
+            Caractere_Trouve := True;
+            Caractere := A.Char;
+        end if;
 	end Get_Caractere;
 end huffman;

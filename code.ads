@@ -35,9 +35,11 @@ package Code is
 	-- Ajoute le bit B en queue du code C
 	procedure Ajoute_Apres(B : in Bit; C : in out Code_Binaire);
 
-	-- ajoute les bits de C1 apres ceux de C
+	-- Ajoute les bits de C1 apres ceux de C
 	procedure Ajoute_Apres(C1 : in Code_Binaire; C : in out Code_Binaire);
 
+    -- Retourne le code binaire d'un octect
+    function Character_Vers_Code(C : Character) return Code_Binaire;
 
 ------------------------------------------------------------------------
 --   PARCOURS D'UN CODE VIA UN "ITERATEUR"
@@ -68,7 +70,7 @@ package Code is
 	function Has_Next(It : Iterateur_Code) return Boolean;
 
 	-- Retourne le prochain bit et avance dans l'iteration
-	-- Leve l'exception Code_Entierement_Parcouru si Has_Next(It) = False
+	-- Leve l'exception Code_Entierement_Parcoon Character_Vers_Code(C : Character) return Code_Binairei Has_Next(It) = False
 	function Next(It : Iterateur_Code) return Bit;
 
 
